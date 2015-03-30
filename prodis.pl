@@ -5,8 +5,12 @@
 
 :- set_prolog_flag(optimise, true).
 
-:- if(current_prolog_flag(version_data, swi(6, _, _, _))).
-:- set_prolog_flag(double_quotes, string).
+:- if((current_prolog_flag(version, V), V < 70000)).
+:- format('prodis does not work on SWI 6-~n', []), halt.
+:- endif.
+
+:- if((current_prolog_flag(version, V), V < 70134)).
+:- format('required SWI 0.1.34, use by your own risk~n', []).
 :- endif.
 
 
