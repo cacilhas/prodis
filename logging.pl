@@ -1,7 +1,7 @@
 ﻿% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
 :- module(logging, [log/3, set_logfile/1, set_log_formatter/1]).
-:- [library(settings)].
+:- [library(settings), log_formatter].
 
 :- dynamic formatter/1.
 
