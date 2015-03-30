@@ -11,15 +11,15 @@ log(Level, Format, Args) :-
 
 
 set_logfile(user) :-
-	told,
-	tell(user).
+    told,
+    tell(user).
 
 
 set_logfile(LogFile) :-
     open(LogFile, append, Stream, [buffer(line),
-								   close_on_abort(true),
-								   encoding(utf8)]),
-	told,
+                                   close_on_abort(true),
+                                   encoding(utf8)]),
+    told,
     tell(Stream).
 
 
@@ -33,8 +33,8 @@ valid_levels([debug, info, warn, error, fatal]).
 
 rlog(Level, Format, Args) :-
     setting(prodis:loglevel, MinLog),
-	valid_levels(Levels),
-	valid_log(Level, MinLog, Levels),
+    valid_levels(Levels),
+    valid_log(Level, MinLog, Levels),
     formatter(Formatter),
     use_module(Formatter),
     Formatter:format_log(Level, Format, Args, Log),

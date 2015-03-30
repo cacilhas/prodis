@@ -27,10 +27,10 @@ start_prodis :-
     setting(prodis:conffile, Settings),
     load_settings(Settings),
     setting(prodis:logfile, LogFile),
-	set_logfile(LogFile),
+    set_logfile(LogFile),
     log(info, 'starting server', []),
     thread_create(start_autosave, _, [alias(autosave),
-									  detached(true),
+                                      detached(true),
                                       at_exit(autosave:save)]),
     start_listening.
 

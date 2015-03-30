@@ -22,17 +22,17 @@ slice([X|Xs], N, [X|R]) :-
 
 
 byte_list(Byte, L) :-
-	var(L), !,
+    var(L), !,
     integer(Byte), Byte >= 0, Byte < 256,
     byte_to_list(inner, Byte, Aux),
     append(Aux, [0, 0, 0, 0, 0, 0, 0, 0], Aux1),
     slice(Aux1, 8, L).
 
 byte_list(Byte, L) :-
-	var(Byte), !,
-	is_list(L),
-	length(L, 8),
-	list_to_byte(L, 1, 0, Byte).
+    var(Byte), !,
+    is_list(L),
+    length(L, 8),
+    list_to_byte(L, 1, 0, Byte).
 
 byte_to_list(inner, 0, []) :- !.
 

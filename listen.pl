@@ -10,18 +10,18 @@ start_listening :-
     setting(prodis:port, Port),
     tcp_bind(Server, Host:Port),
     tcp_listen(Server, 10),
-	log(debug, 'listening ~w:~w', [Host, Port]),
+    log(debug, 'listening ~w:~w', [Host, Port]),
     mainloop(Server).
 
 
 mainloop(Server) :-
-	log(debug, 'accepting connections', []),
+    log(debug, 'accepting connections', []),
     tcp_accept(Server, Slave, Peer),
     log(debug, 'connection from ~w', [Peer]),
     tcp_open_socket(Slave, Stream),
-	thread_create(look_to([peer-Peer, stream-Stream]), _,
-				  [detached(true),
-			       at_exit(close(Stream, [force(true)]))]),
+    thread_create(look_to([peer-Peer, stream-Stream]), _,
+                  [detached(true),
+                   at_exit(close(Stream, [force(true)]))]),
     mainloop(Server).
 
 
@@ -29,36 +29,36 @@ mainloop(Server) :-
 look_to([peer-Peer, stream-Stream]) :-
     % TODO: authentication,
     next_command(Stream, Command),
-	continue_processing([peer-Peer, stream-Stream], Command).
+    continue_processing([peer-Peer, stream-Stream], Command).
 
 
 %% Finish thread and close conection
 continue_processing([peer-Peer |_], end_of_file) :- !,
-	log(warn, '(~w) disconnected', [Peer]).
+    log(warn, '(~w) disconnected', [Peer]).
 
 continue_processing([peer-Peer, stream-Stream], [Command|Params]) :- !,
-	string_upper(Command, Aux),
+    string_upper(Command, Aux),
     atom_string(RealCommand, Aux),
-	log(debug, '(~w) received command ~w, params: ~w',
-		[Peer, RealCommand, Params]),
+    log(debug, '(~w) received command ~w, params: ~w',
+        [Peer, RealCommand, Params]),
     redis_process_command(RealCommand, Params, Response),
-	log(debug, '(~w) responding: ~w', [Peer, Response]),
+    log(debug, '(~w) responding: ~w', [Peer, Response]),
     respond([peer-Peer, stream-Stream], Response).
 
 continue_processing(State, Command) :-
-	string(Command), !,
-	continue_processing(State, [Command]).
+    string(Command), !,
+    continue_processing(State, [Command]).
 
 
 %% Close connection
 respond([peer-Peer, stream-Stream], '+CLOSED\r~n') :- !,
-	log(debug, '(~w) closing connection', [Peer]),
+    log(debug, '(~w) closing connection', [Peer]),
     format(Stream, '+CLOSED\r~n', []).
 
 %% Respond and wait for commands
 respond([peer-Peer, stream-Stream], Format) :- !,
-	format(Stream, Format, []),
-	flush_output(Stream),
+    format(Stream, Format, []),
+    flush_output(Stream),
     look_to([peer-Peer, stream-Stream]).
 
 
@@ -92,7 +92,7 @@ process_codes(_Stream, [0'+|Param], R) :- !,
 
 %% Bulk string
 process_codes(Stream, [0'$, 0'0], "") :- !,
-	read_line_to_codes(Stream, []).
+    read_line_to_codes(Stream, []).
 
 process_codes(Stream, [0'$|Param], R) :- !,
     atom_codes(Aux, Param),
@@ -114,15 +114,15 @@ get_redis_bulk_string(Stream, N, Acc, R) :- !,
     read_line_to_codes(Stream, Code, [13, 10]),
     append(Acc, Code, Acc1),
     length(Acc1, Length),
-	bulk_string_next_step(Stream, N, Length, Acc1, R).
+    bulk_string_next_step(Stream, N, Length, Acc1, R).
 
 bulk_string_next_step(Stream, N, Length, Acc, R) :-
-	Length < N, !,
-	get_redis_bulk_string(Stream, N, Acc, R).
+    Length < N, !,
+    get_redis_bulk_string(Stream, N, Acc, R).
 
 bulk_string_next_step(Stream, N, _, Acc, R) :- !,
-	slice(Acc, N, Acc1),
-	get_redis_bulk_string(Stream, 0, Acc1, R).
+    slice(Acc, N, Acc1),
+    get_redis_bulk_string(Stream, 0, Acc1, R).
 
 
 get_redis_array(_, N, _) :- N < 0, !, fail.

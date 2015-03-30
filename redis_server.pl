@@ -4,7 +4,7 @@
 :- [library(settings), logging, database, autosave, operators].
 
 redis_process_command(Command, Parameters, Response) :-
-	process(Command, Parameters, Response).
+    process(Command, Parameters, Response).
 
 
 %% QUIT ------------------------------------------------------------------------
@@ -13,21 +13,21 @@ process('QUIT', [], '+CLOSED\r~n') :- !.
 
 %% APPEND ----------------------------------------------------------------------
 process('APPEND', [Key, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
-	regget(Key, Value),
-	(member(type-hash, Value); member(type-list, Value)), !.
+    regget(Key, Value),
+    (member(type-hash, Value); member(type-list, Value)), !.
 
 process('APPEND', [Key, Value], R) :-
-	regget(Key, [type-string, key-Key, value-Current]), !,
+    regget(Key, [type-string, key-Key, value-Current]), !,
     term_string(Value, Value1),
     p_append(Value1, Current, Value2),
-	regset(Key, Value2),
+    regset(Key, Value2),
     string_length(Value2, Length),
     term_output(Length, R).
 
 process('APPEND', [Key, Value], R) :-
     \+ regget(Key, _), !,
     term_string(Value, Value1),
-	regset(Key, Value1),
+    regset(Key, Value1),
     string_length(Value1, Length),
     term_output(Length, R).
 
@@ -51,8 +51,8 @@ process('BGSAVE', [], '+Background saving started\r~n') :- !,
 
 %% BITCOUNT --------------------------------------------------------------------
 process('BITCOUNT', [Key], R) :-
-	regget(Key, [type-Type, key-Key, value-Value]),
-	member(Type, [string, number]),
+    regget(Key, [type-Type, key-Key, value-Value]),
+    member(Type, [string, number]),
     (string(Value) -> string_codes(Value, Value1); Value1 = Value),
     count_bits(Value1, Bits), !,
     term_output(Bits, R).
@@ -125,8 +125,8 @@ process('CONFIG', _, '-ERR wrong parameters to CONFIG\r~n').
 
 %% DBSIZE ----------------------------------------------------------------------
 process('DBSIZE', [], R) :-
-	regkeys("*", Keys),
-	length(Keys, Length),
+    regkeys("*", Keys),
+    length(Keys, Length),
     term_output(Length, R).
 
 
@@ -147,18 +147,18 @@ process('DECRBY', [Key, Dec], R) :-
     term_output(V1, R).
 
 process('DECRBY', [Key, _], '-ERR value is not an integer or out of range') :-
-	regget(Key, _), !.
+    regget(Key, _), !.
 
 process('DECRBY', [Key, Dec], R) :- !,
     Value is -Dec,
-	regset(Key, Value),
+    regset(Key, Value),
     term_output(Value, R).
 
 
 %% DEL -------------------------------------------------------------------------
 process('DEL', [Key], ':1\r~n') :-
-	regexists(Key), !,
-	regdel(Key).
+    regexists(Key), !,
+    regdel(Key).
 
 process('DEL', [_], ':0\r~n') :- !.
 
@@ -209,23 +209,23 @@ process('EXPIREAT', _, '-ERR not implemented\r~n') :- !.
 
 %% FLUSHALL --------------------------------------------------------------------
 process('FLUSHALL', [], '+OK\r~n') :-
-	regdel(_).
+    regdel(_).
 
 
 %% FLUSHDB ---------------------------------------------------------------------
 process('FLUSHDB', [], '+OK\r~n') :-
-	regdel(_).
+    regdel(_).
 
 
 %% GET -------------------------------------------------------------------------
 process('GET', [Key], R) :-
-	regexists(Key),
+    regexists(Key),
     regget(Key, [type-Type, key-Key, value-Value]),
-	member(Type, [string, number]), !,
+    member(Type, [string, number]), !,
     term_output(Value, R).
 
 process('GET', [Key], '$-1\r~n') :-
-	\+ regexists(Key), !.
+    \+ regexists(Key), !.
 
 
 %% GETBIT ----------------------------------------------------------------------
@@ -249,8 +249,8 @@ process('GETSET', [Key, Value], R) :-
 %% HDEL ------------------------------------------------------------------------
 
 process('HDEL', [Key, Field], ':1\r~n') :-
-	regexists(Key, Field), !,
-	regdel(Key, Field).
+    regexists(Key, Field), !,
+    regdel(Key, Field).
 
 process('HDEL', [Key, _], ':0\r~n') :-
     regget(Key, [type-hash |_]), !.
@@ -263,10 +263,10 @@ process('HDEL', [_, _], ':0\r~n') :- !.
 
 %% HEXISTS ---------------------------------------------------------------------
 process('HEXISTS', [Key, Field], ':1\r~n') :-
-	regexists(Key, Field), !.
+    regexists(Key, Field), !.
 
 process('HEXISTS', [Key, _], ':0\r~n') :-
-	regget(Key, [type-hash |_]), !.
+    regget(Key, [type-hash |_]), !.
 
 process('HEXISTS', [Key, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regget(Key, Value), Value \= null, !.
@@ -276,7 +276,7 @@ process('HEXISTS', [_, _], ':0\r~n') :- !.
 
 %% HGET ------------------------------------------------------------------------
 process('HGET', [Key, Field], R) :-
-	regget(Key, Field, [_, key-Key, field-Field, value-Value]), !,
+    regget(Key, Field, [_, key-Key, field-Field, value-Value]), !,
     term_output(Value, R).
 
 process('HGET', [Key, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
@@ -287,9 +287,9 @@ process('HGET', [_, _], '$-1\r~n') :- !.
 
 %% HGETALL ---------------------------------------------------------------------
 process('HGETALL', [Key], R) :-
-	regget(Key, [type-hash |_]), !,
+    regget(Key, [type-hash |_]), !,
     findall(X, (regget(Key, [type-hash, key-Key, value-(Field-Value)]), X = [Field, Value]), List),
-	flatten(List, List1),
+    flatten(List, List1),
     term_output(List1, R).
 
 process('HGETALL', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
@@ -300,10 +300,10 @@ process('HGETALL', [_], '*0\r~n') :- !.
 
 %% HINCRBY ---------------------------------------------------------------------
 process('HINCRBY', [Key, Field, Increment], R) :-
-	regget(Key, Field, [type-number, key-Key, field-Field, value-Value]), !,
-	Value1 is Value + Increment,
-	regset(Key, Field-Value1),
-	term_output(Value1, R).
+    regget(Key, Field, [type-number, key-Key, field-Field, value-Value]), !,
+    Value1 is Value + Increment,
+    regset(Key, Field-Value1),
+    term_output(Value1, R).
 
 %% HINCRBYFLOAT ----------------------------------------------------------------
 process('HINCRBYFLOAT', _, '-ERR not implemented\r~n') :- !.
@@ -311,15 +311,15 @@ process('HINCRBYFLOAT', _, '-ERR not implemented\r~n') :- !.
 
 %% HKEYS -----------------------------------------------------------------------
 process('HKEYS', [Key], R) :-
-	regfields(Key, Fields),
-	term_output(Fields, R).
+    regfields(Key, Fields),
+    term_output(Fields, R).
 
 
 %% HLEN ------------------------------------------------------------------------
 process('HLEN', [Key], R) :-
-	regfields(Key, Fields),
-	length(Fields, Length),
-	term_output(Length, R).
+    regfields(Key, Fields),
+    length(Fields, Length),
+    term_output(Length, R).
 
 
 %% HMGET -----------------------------------------------------------------------
@@ -332,14 +332,14 @@ process('HMSET', _, '-ERR not implemented\r~n') :- !.
 
 %% HSET ------------------------------------------------------------------------
 process('HSET', [Key, Field, Value], R) :-
-	regget(Key, [type-hash |_]), !,
-	regset(Key, Field-Value),
-	regfields(Key, Fields),
-	length(Fields, Length),
-	term_output(Length, R).
+    regget(Key, [type-hash |_]), !,
+    regset(Key, Field-Value),
+    regfields(Key, Fields),
+    length(Fields, Length),
+    term_output(Length, R).
 
 process('HSET', [Key, _, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
-	regexists(Key), !.
+    regexists(Key), !.
 
 process('HSET', [_, _, _], ':0\r~n') :- !.
 
@@ -358,15 +358,15 @@ process('HVALS', _, '-ERR not implemented\r~n') :- !.
 
 %% INCR ------------------------------------------------------------------------
 process('INCR', [Key], R) :-
-	process('INCRBY', [Key, 1], R).
+    process('INCRBY', [Key, 1], R).
 
 
 %% INCRBY ----------------------------------------------------------------------
 process('INCRBY', [Key, Increment], R) :-
-	regget(Key, [type-number, key-Key, value-Value]), !,
-	Value1 is Value + Increment,
-	regset(Key, Value1),
-	term_output(Value1, R).
+    regget(Key, [type-number, key-Key, value-Value]), !,
+    Value1 is Value + Increment,
+    regset(Key, Value1),
+    term_output(Value1, R).
 
 
 %% INCRBYFLOAT -----------------------------------------------------------------
@@ -379,8 +379,8 @@ process('INFO', _, '-ERR not implemented\r~n') :- !.
 
 %% KEYS ------------------------------------------------------------------------
 process('KEYS', [Pattern], R) :-
-	regkeys(Pattern, Keys),
-	term_output(Keys, R).
+    regkeys(Pattern, Keys),
+    term_output(Keys, R).
 
 
 %% LASTSAVE --------------------------------------------------------------------
@@ -389,12 +389,12 @@ process('LASTSAVE', _, '-ERR not implemented\r~n') :- !.
 
 %% LINDEX ----------------------------------------------------------------------
 process('LINDEX', [Key, Index], R) :-
-	regget(Key, [type-list, key-Key, value-List]), !,
-	(nth0(Index, List, Value); Value = null),
-	term_output(Value, R).
+    regget(Key, [type-list, key-Key, value-List]), !,
+    (nth0(Index, List, Value); Value = null),
+    term_output(Value, R).
 
 process('LINDEX', [Key, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
-	regexists(Key), !.
+    regexists(Key), !.
 
 process('LINDEX', [_, _], '$-1\r~n') :- !.
 
@@ -405,9 +405,9 @@ process('LINSERT', _, '-ERR not implemented\r~n') :- !.
 
 %% LLEN ------------------------------------------------------------------------
 process('LLEN', [Key], R) :-
-	regget(Key, [type-list, key-Key, value-List]), !,
-	length(List, Length),
-	term_output(Length, R).
+    regget(Key, [type-list, key-Key, value-List]), !,
+    length(List, Length),
+    term_output(Length, R).
 
 process('LLEN', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Key), !.
@@ -417,14 +417,14 @@ process('LLEN', [_], ':0\r~n') :- !.
 
 %% LPOP ------------------------------------------------------------------------
 process('LPOP', [Key], R) :-
-	regget(Key, [type-list, key-Key, value-[Left]]), !,
-	regdel(Key),
-	term_output(Left, R).
+    regget(Key, [type-list, key-Key, value-[Left]]), !,
+    regdel(Key),
+    term_output(Left, R).
 
 process('LPOP', [Key], R) :-
-	regget(Key, [type-list, key-Key, value-[Left|List]]), !,
-	regset(Key, List),
-	term_output(Left, R).
+    regget(Key, [type-list, key-Key, value-[Left|List]]), !,
+    regset(Key, List),
+    term_output(Left, R).
 
 process('LPOP', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Key), !.
@@ -435,29 +435,29 @@ process('LPOP', [_], '$-1\r~n') :- !.
 
 %% LPUSH -----------------------------------------------------------------------
 process('LPUSH', [Key|Values], R) :-
-	regget(Key, [type-list, key-Key, value-List]), !,
-	append(Values, List, List1),
-	regset(Key, List1),
-	length(List1, Length),
-	term_output(Length, R).
+    regget(Key, [type-list, key-Key, value-List]), !,
+    append(Values, List, List1),
+    regset(Key, List1),
+    length(List1, Length),
+    term_output(Length, R).
 
 process('LPUSH', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Key), !.
 
 process('LPUSH', [Key|Values], R) :-
-	regset(Key, Values),
-	length(Values, Length),
-	term_output(Length, R).
+    regset(Key, Values),
+    length(Values, Length),
+    term_output(Length, R).
 
 
 
 %% LPUSHX ----------------------------------------------------------------------
 process('LPUSHX', [Key, Value], R) :-
-	regexists(Key), !,
-	process('LPUSH', [Key, Value], R).
+    regexists(Key), !,
+    process('LPUSH', [Key, Value], R).
 
 process('LPUSHX', [Key, _], ':0\r~n') :-
-	\+ regexists(Key), !.
+    \+ regexists(Key), !.
 
 
 %% LRANGE ----------------------------------------------------------------------
@@ -582,15 +582,15 @@ process('ROLE', _, '-ERR not implemented\r~n') :- !.
 
 %% RPOP ------------------------------------------------------------------------
 process('RPOP', [Key], R) :-
-	regget(Key, [type-list, key-Key, value-[Right]]), !,
-	regdel(Key),
-	term_output(Right, R).
+    regget(Key, [type-list, key-Key, value-[Right]]), !,
+    regdel(Key),
+    term_output(Right, R).
 
 process('RPOP', [Key], R) :-
-	regget(Key, [type-list, key-Key, value-List]), !,
-	append(List1, [Right], List), !,
-	regset(Key, List1),
-	term_output(Right, R).
+    regget(Key, [type-list, key-Key, value-List]), !,
+    append(List1, [Right], List), !,
+    regset(Key, List1),
+    term_output(Right, R).
 
 process('RPOP', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Key), !.
@@ -600,21 +600,21 @@ process('RPOP', [_], '$-1\r~n') :- !.
 
 %% RPOPLPUSH -------------------------------------------------------------------
 process('RPOPLPUSH', [_, Destination], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
-	regget(Destination, [type-Type |_]),
-	Type \= list, !.
+    regget(Destination, [type-Type |_]),
+    Type \= list, !.
 
 process('RPOPLPUSH', [Source, Destination], R) :-
-	regget(Source, [type-list, key-Source, value-[Right]]), !,
-	regdel(Source),
-	term_output(Right, R),
-	process('LPUSH', [Destination, Right], _).
+    regget(Source, [type-list, key-Source, value-[Right]]), !,
+    regdel(Source),
+    term_output(Right, R),
+    process('LPUSH', [Destination, Right], _).
 
 process('RPOPLPUSH', [Source, Destination], R) :-
-	regget(Source, [type-list, key-Source, value-List]),
-	append(List1, [Right], List), !,
-	regset(Source, List1),
-	term_output(Right, R),
-	process('LPUSH', [Destination, Right], _).
+    regget(Source, [type-list, key-Source, value-List]),
+    append(List1, [Right], List), !,
+    regset(Source, List1),
+    term_output(Right, R),
+    process('LPUSH', [Destination, Right], _).
 
 process('RPOPLPUSH', [Source, _], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Source), !.
@@ -624,28 +624,28 @@ process('RPOPLPUSH', [_, _], '$-1\r~n') :- !.
 
 %% RPUSH -----------------------------------------------------------------------
 process('RPUSH', [Key|Values], R) :-
-	regget(Key, [type-list, key-Key, value-List]), !,
-	append(List, Values, List1),
-	regset(Key, List1),
-	length(List1, Length),
-	term_output(Length, R).
+    regget(Key, [type-list, key-Key, value-List]), !,
+    append(List, Values, List1),
+    regset(Key, List1),
+    length(List1, Length),
+    term_output(Length, R).
 
 process('RPUSH', [Key], '-WRONGTYPE Operation against a key holding the wrong kind of value') :-
     regexists(Key), !.
 
 process('RPUSH', [Key|Values], R) :- !,
-	regset(Key, Values),
-	length(Values, Length),
-	term_output(Length, R).
+    regset(Key, Values),
+    length(Values, Length),
+    term_output(Length, R).
 
 
 %% RPUSHX ----------------------------------------------------------------------
 process('RPUSHX', [Key, Value], R) :-
-	regexists(Key), !,
-	process('RPUSH', [Key, Value], R).
+    regexists(Key), !,
+    process('RPUSH', [Key, Value], R).
 
 process('RPUSHX', [Key, _], ':0\r~n') :-
-	\+ regexists(Key), !.
+    \+ regexists(Key), !.
 
 
 %% SADD ------------------------------------------------------------------------
@@ -693,7 +693,7 @@ process('SELECT', _, '-ERR not implemented\r~n') :- !.
 
 %% SET -------------------------------------------------------------------------
 process('SET', [Key, Value], ':1\r~n') :- !,
-	regset(Key, Value).
+    regset(Key, Value).
 
 
 %% SETBIT ----------------------------------------------------------------------
@@ -715,10 +715,10 @@ process('SETRANGE', _, '-ERR not implemented\r~n') :- !.
 %% SHUTDOWN --------------------------------------------------------------------
 process('SHUTDOWN', [How], '+OK\r~n') :-
     string_upper(How, Aux),
-	atom_string(How1, Aux),
-	member(How1, ['SAVE', 'NOSAVE']), !,
-	(How1 = 'SAVE' -> autosave:save; true),
-	halt.
+    atom_string(How1, Aux),
+    member(How1, ['SAVE', 'NOSAVE']), !,
+    (How1 = 'SAVE' -> autosave:save; true),
+    halt.
 
 
 %% SINTER ----------------------------------------------------------------------
@@ -767,9 +767,9 @@ process('SREM', _, '-ERR not implemented\r~n') :- !.
 
 %% STRLEN ----------------------------------------------------------------------
 process('STRLEN', [Key], R) :-
-	regget(Key, [type-string, key-Key, value-Value]), !,
-	string_length(Value, Length),
-	term_output(Length, R).
+    regget(Key, [type-string, key-Key, value-Value]), !,
+    string_length(Value, Length),
+    term_output(Length, R).
 
 
 %% SUBSCRIBE -------------------------------------------------------------------
@@ -790,8 +790,8 @@ process('SYNC', _, '-ERR not implemented\r~n') :- !.
 
 %% TIME ------------------------------------------------------------------------
 process('TIME', [], R) :- !,
-	get_time(Stamp),
-	format_time(atom(R), '%YT%T%z', Stamp).
+    get_time(Stamp),
+    format_time(atom(R), '%YT%T%z', Stamp).
 
 
 %% TTL -------------------------------------------------------------------------
@@ -800,8 +800,8 @@ process('TTL', _, '-ERR not implemented\r~n') :- !.
 
 %% TYPE ------------------------------------------------------------------------
 process('TYPE', [Key], R) :-
-	regget(Key, [type-Type |_]), !,
-	term_output(Type, R).
+    regget(Key, [type-Type |_]), !,
+    term_output(Type, R).
 
 process('TYPE', [_], '+none\r~n') :- !.
 
@@ -916,14 +916,14 @@ process('ZSCAN', _, '-ERR not implemented\r~n') :- !.
 
 %% Unknown command -------------------------------------------------------------
 process(Command, _, R) :-
-	format(atom(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
+    format(atom(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
 
 
 %% Auxiliar --------------------------------------------------------------------
 bitop(Op, Dest, Params, R) :-
     findall(X, (member(Key, Params), regget(Key, [type-string, key-Key, value-X])), Values),
     do_bitop(Op, Values, [], Value),
-	regset(Dest, Value),
+    regset(Dest, Value),
     length(Value, Length),
     term_output(Length, R).
 
@@ -972,7 +972,7 @@ config('REWRITE', [], '+OK\r~n') :-
     setting(prodis:conffile, Settings),
     load_settings(Settings),
     setting(prodis:logfile, LogFile),
-	set_logfile(LogFile).
+    set_logfile(LogFile).
 
 config('SET', [Key, Value], R) :-
     atom_string(AKey, Key),
