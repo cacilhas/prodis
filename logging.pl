@@ -38,7 +38,7 @@ rlog(Level, Format, Args) :-
     formatter(Formatter),
     use_module(Formatter),
     Formatter:format_log(Level, Format, Args, Log),
-    call(Log).
+    write(Log).
 
 
 valid_log(_Current, _Min, []) :- !, fail.

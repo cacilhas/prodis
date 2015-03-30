@@ -11,7 +11,7 @@ format_log(Level, Format, Args, Log) :-
     concat('~T [~a] ', Format, Format2),
     concat(Format2, '~n', Format3),
     upcase_atom(Level, Level2),
-    Log = format(Format3, [Stamp, Level2 | Args]).
+    format(atom(Log), Format3, [Stamp, Level2 | Args]).
 
 
 format_time(_Arg, Stamp) :-
