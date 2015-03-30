@@ -288,7 +288,7 @@ process('HGET', [_, _], '$-1\r~n') :- !.
 %% HGETALL ---------------------------------------------------------------------
 process('HGETALL', [Key], R) :-
 	regget(Key, [type-hash |_]), !,
-    findall(X, (regget(Key, [type-hash, key-Key, value-Value]), X =.. Value), List),
+    findall(X, (regget(Key, [type-hash, key-Key, value-(Field-Value)]), X = [Field, Value]), List),
 	flatten(List, List1),
     term_output(List1, R).
 
@@ -302,8 +302,7 @@ process('HGETALL', [_], '*0\r~n') :- !.
 process('HINCRBY', [Key, Field, Increment], R) :-
 	regget(Key, Field, [type-number, key-Key, field-Field, value-Value]), !,
 	Value1 is Value + Increment,
-	Hash1 =.. [Field, Value1],
-	regset(Key, Hash1),
+	regset(Key, Field-Value1),
 	term_output(Value1, R).
 
 %% HINCRBYFLOAT ----------------------------------------------------------------
@@ -334,8 +333,7 @@ process('HMSET', _, '-ERR not implemented\r~n') :- !.
 %% HSET ------------------------------------------------------------------------
 process('HSET', [Key, Field, Value], R) :-
 	regget(Key, [type-hash |_]), !,
-	Hash =.. [Field, Value],
-	regset(Key, Hash),
+	regset(Key, Field-Value),
 	regfields(Key, Fields),
 	length(Fields, Length),
 	term_output(Length, R).

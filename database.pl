@@ -25,15 +25,14 @@ regdel(Key) :-
 
 
 regdel(Key, Field) :-
-	Hash =.. [Field, _],
-	with_mutex(database, retractall_register(hash, Key, Hash)).
+	with_mutex(database, retractall_register(hash, Key, Field-_)).
 
 
 regset(Key, null) :- !,
 	regdel(Key).
 
 regset(Key, Value) :-
-	Value =.. [_, _], !,
+	Value = _-_, !,
 	regset(hash, Key, Value).
 
 regset(Key, Value) :-
@@ -51,9 +50,8 @@ regget(Key, [type-Type, key-Key, value-Value]) :-
 regget(Key, [type-none, key-Key, value-null]).
 
 regget(Key, Field, [type-Type, key-Key, field-Field, value:Value]) :-
-	Hash =.. [Field, Value],
-	with_mutex(database, register(hash, Key, Hash)),
-	(Value =.. [_, _] -> Type = hash;
+	with_mutex(database, register(hash, Key, Field-Value)),
+	(Value = _-_ -> Type = hash;
 	 is_list(Value) -> Type = list;
 	 string(Value) -> Type = string;
 	 number(Value) -> Type = number;
@@ -62,8 +60,7 @@ regget(Key, Field, [type-Type, key-Key, field-Field, value:Value]) :-
 
 regfields(Key, Fields) :-
 	with_mutex(database,
-			   findall(Field, (register(hash, Key, Hash),
-							   Hash =.. [Field, _]), Fields)).
+			   findall(Field, register(hash, Key, Field-_), Fields)).
 
 
 regkeys(Match, Keys) :-
@@ -73,28 +70,27 @@ regkeys(Match, Keys) :-
 
 
 regset(hash, Key, Value) :-
-	Value =.. [Field, null], !,
+	Value = Field-null, !,
 	regdel(Key, Field).
 
 regset(hash, Key, Value) :-
-	Value =.. [Field, _], !,
-	with_mutex(database, hash_regset(Key, Field, Value)).
+	Value = Field-Value1, !,
+	with_mutex(database, hash_regset(Key, Field, Value1)).
 
 regset(Type, Key, Value) :-
 	with_mutex(database,
 			   (retractall_register(_, Key, _),
-				assert_register(Type, Key, Value))).
+				asserta_register(Type, Key, Value))).
 
 
 hash_regset(Key, Field, Value) :-
 	register(hash, Key, _), !,
-	Hash =.. [Field, _],
-	retractall_register(hash, Key, Hash),
-    assert_register(hash, Key, Value).
+	retractall_register(hash, Key, Field-_),
+    asserta_register(hash, Key, Field-Value).
 
-hash_regset(Key, _, Value) :-
+hash_regset(Key, Field, Value) :-
 	retractall_register(_, Key, _),
-    assert_register(hash, Key, Value).
+    asserta_register(hash, Key, Field-Value).
 
 
 connect(Sync) :-
@@ -102,5 +98,3 @@ connect(Sync) :-
 	db_attach(CacheFile, [sync(Sync)]).
 
 % vim:set et:syntax=prolog
-
-
