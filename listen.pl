@@ -135,10 +135,3 @@ get_redis_array(Stream, N, [R1 | Rest]) :- !,
     get_redis_array(Stream, N1, Rest).
 
 % vim:set et:syntax=prolog
-
-
-
-
-
-
-
