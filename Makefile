@@ -1,5 +1,12 @@
-# TODO: make it multiplataform
-PROLOG= /Applications/SWI-Prolog.app/Contents/MacOS/swipl --quiet
+UNAME= $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+	# Mac OS X installation does not put swipl on PATH envvar
+	PROLOG= /Applications/SWI-Prolog.app/Contents/MacOS/swipl --quiet
+else
+	PROLOG= swipl --quiet
+endif
+
 PROLOGC= $(PROLOG) -O --toplevel=halt.
 RM= rm -f
 
