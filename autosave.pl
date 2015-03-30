@@ -3,9 +3,6 @@
 :- module(autosave, [start_autosave/0]).
 :- [library(settings), library(persistency), logging, database].
 
-:- persistent
-   record(type:oneof([string, number, list, hash]), key:string, value:term).
-
 
 start_autosave :-
 	setting(prodis:cachedelay, Delay),
