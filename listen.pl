@@ -37,12 +37,10 @@ continue_processing([peer-Peer |_], end_of_file) :- !,
     log(warn, '(~w) disconnected', [Peer]).
 
 continue_processing([peer-Peer, stream-Stream], [Command|Params]) :- !,
-    string_upper(Command, Aux),
-    atom_string(RealCommand, Aux),
+    string_upper(Command, RealCommand),
     log(debug, '(~w) received command ~w, params: ~w',
         [Peer, RealCommand, Params]),
     redis_process_command(RealCommand, Params, Response),
-    log(debug, '(~w) responding: ~w', [Peer, Response]),
     respond([peer-Peer, stream-Stream], Response).
 
 continue_processing(State, Command) :-
@@ -51,13 +49,15 @@ continue_processing(State, Command) :-
 
 
 %% Close connection
-respond([peer-Peer, stream-Stream], '+CLOSED\r~n') :- !,
+respond([peer-Peer, stream-Stream], `+CLOSED\r\n`) :- !,
     log(debug, '(~w) closing connection', [Peer]),
-    format(Stream, '+CLOSED\r~n', []).
+    write(Stream, "+CLOSE\r\n").
 
 %% Respond and wait for commands
-respond([peer-Peer, stream-Stream], Format) :- !,
-    format(Stream, Format, []),
+respond([peer-Peer, stream-Stream], Response) :- !,
+    string_codes(R1, Response),
+    log(debug, '(~w) responding: ~q', [Peer, R1]),
+    write(Stream, R1),
     flush_output(Stream),
     look_to([peer-Peer, stream-Stream]).
 

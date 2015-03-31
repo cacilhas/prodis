@@ -114,37 +114,36 @@ apply_xor([X|Xs], [Y|Ys], [Z|Zs]) :-
     apply_or(Xs, Ys, Zs).
 
 
-term_output(null, '$-1\r~n') :- !.
+term_output(null, `$-1\r\n`) :- !.
+
+term_output(true, `$:1\r\n`) :- !.
+
+term_output(false, `$:0\r\n`) :- !.
 
 term_output(Data, Output) :-
     number(Data), !,
-    format(atom(Output), ':~w\r~n', [Data]).
+    format(codes(Output), ':~w\r~n', [Data]).
 
 term_output(Data, Output) :-
     string(Data), !,
     string_length(Data, Length),
-    format(atom(Output), '$~w\r~n~s\r~n', [Length, Data]).
-
-term_output(Data, Output) :-
-    string(Data), !,
-    string_length(Data, Length),
-    format(atom(Output), '$~w\r~n~s\r~n', [Length, Data]).
+    format(codes(Output), '$~w\r~n~s\r~n', [Length, Data]).
 
 term_output(Data, Output) :-
     is_list(Data), !,
     length(Data, Length),
-    format(atom(Acc), '*~w\r~n', [Length]),
+    format(codes(Acc), '*~w\r~n', [Length]),
     list_to_output(Data, Acc, Output).
 
 term_output(Data, Output) :-
-    format(atom(Output), '+~w\r~n', [Data]).
+    format(codes(Output), '+~w\r~n', [Data]).
 
 
 list_to_output([], Acc, Acc) :- !.
 
 list_to_output([X|Xs], Acc, Output) :-
     term_output(X, R),
-    format(atom(Acc2), '~w~w\r~n', [Acc, R]),
+    format(codes(Acc2), '~s~s', [Acc, R]),
     list_to_output(Xs, Acc2, Output).
 
 
