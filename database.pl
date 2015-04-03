@@ -49,7 +49,7 @@ regget(Key, [type-Type, key-Key, value-Value]) :-
 
 regget(Key, [type-none, key-Key, value-null]).
 
-regget(Key, Field, [type-Type, key-Key, field-Field, value:Value]) :-
+regget(Key, Field, [type-Type, key-Key, field-Field, value-Value]) :-
     with_mutex(database, register(hash, Key, Field-Value)),
     (Value = _-_ -> Type = hash;
      is_list(Value) -> Type = list;
@@ -95,6 +95,9 @@ hash_regset(Key, Field, Value) :-
 
 connect(Sync) :-
     setting(prodis:cache, CacheFile),
+    connect(Sync, CacheFile).
+
+connect(Sync, CacheFile) :-
     db_attach(CacheFile, [sync(Sync)]).
 
 % vim:set et:syntax=prolog

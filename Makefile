@@ -8,6 +8,7 @@ else
 endif
 
 PROLOGC= $(PROLOG) -O --toplevel=halt.
+TEST= $(PROLOG) -t run_tests.
 RM= rm -f
 
 
@@ -23,7 +24,12 @@ debug: prodis.pl
 	$(PROLOG) -f $< -g gxref.
 
 
+.PRONY: test
+test:
+	$(TEST) tests/*.pl
+
+
 .PRONY: clean
 clean:
 	$(RM) prodis
-	$(RM) *~
+	find . -name "*~" -delete
