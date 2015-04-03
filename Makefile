@@ -26,7 +26,7 @@ debug: prodis.pl
 
 
 test: tests/*.pl
-	$(TEST) $? --settings=$(SETTINGS)
+	@$(TEST) $? --settings=$(SETTINGS)
 
 
 clean:
