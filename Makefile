@@ -25,8 +25,8 @@ debug: prodis.pl
 	$(PROLOG) -f $< -g gxref.
 
 
-test: tests/*.pl
-	@$(TEST) $? --settings=$(SETTINGS)
+test: tests/test*.pl
+	@$(TEST) $^ --settings=$(SETTINGS)
 
 
 clean:
