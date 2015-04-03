@@ -8,7 +8,7 @@ current_setup :-
     database:connect(none, '/tmp/cache').
 
 current_cleanup :-
-    db_sync_all(gc),
+    findall(_, db_sync(database:gc), _),
     delete_file('/tmp/cache').
 
 

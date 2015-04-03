@@ -16,7 +16,7 @@ start_autosave :-
 
 
 save :-
-    with_mutex(database, ignore(db_sync_all(gc))).
+    with_mutex(database, ignore(findall(_, db_sync(database:gc), _))).
 
 
 mainloop(State) :-
