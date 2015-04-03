@@ -1,7 +1,7 @@
 ﻿% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
 :- module(test_database, []).
-:- [library(settings), '../database'].
+:- [library(settings), '../src/database'].
 
 
 current_setup :-

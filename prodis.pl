@@ -1,7 +1,7 @@
 ﻿% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
 :- module(prodis, [start_prodis/0]).
-:- [library(settings), logging, autosave, listen].
+:- [library(settings), 'src/logging', 'src/autosave', 'src/listen'].
 
 :- set_prolog_flag(optimise, true).
 
