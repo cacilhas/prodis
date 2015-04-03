@@ -2,10 +2,10 @@
 setting(prodis:host, localhost).
 
 %	port to bind
-setting(prodis:port, 6379).
+setting(prodis:port, 5000).
 
 %	cache file
-setting(prodis:cache, 'cache.db').
+setting(prodis:cache, '/tmp/cache').
 
 %	log file
 setting(prodis:logfile, '/dev/null').

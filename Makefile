@@ -7,8 +7,9 @@ else
 	PROLOG= swipl --quiet
 endif
 
+SETTINGS=settings/test.pro
 PROLOGC= $(PROLOG) -O --toplevel=halt.
-TEST= $(PROLOG) -t run_tests.
+TEST= $(PROLOG) -f prodis.pl -g prodis:load_parameters. -t run_tests.
 RM= rm -f
 
 
@@ -24,8 +25,8 @@ debug: prodis.pl
 	$(PROLOG) -f $< -g gxref.
 
 
-test:
-	$(TEST) tests/*.pl
+test: tests/*.pl
+	$(TEST) $? --settings=$(SETTINGS)
 
 
 clean:

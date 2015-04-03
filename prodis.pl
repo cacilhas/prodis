@@ -26,17 +26,20 @@
 
 
 start_prodis :-
-    current_prolog_flag(argv, Args),
-    load_parameters(Args),
-    setting(prodis:conffile, Settings),
-    load_settings(Settings),
-    setting(prodis:logfile, LogFile),
-    set_logfile(LogFile),
+    load_parameters,
     log(info, 'starting server', []),
     thread_create(start_autosave, _, [alias(autosave),
                                       detached(true),
                                       at_exit(autosave:save)]),
     start_listening.
+
+load_parameters :-
+    current_prolog_flag(argv, Args),
+    load_parameters(Args),
+    setting(prodis:conffile, Settings),
+    load_settings(Settings),
+    setting(prodis:logfile, LogFile),
+    set_logfile(LogFile).
 
 
 %% Load parameters from command line -------------------------------------------

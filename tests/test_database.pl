@@ -1,15 +1,16 @@
 ﻿% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
 :- module(test_database, []).
-:- ['../database'].
+:- [library(settings), '../database'].
 
 
 current_setup :-
-    database:connect(none, '/tmp/cache').
+    database:connect(none).
 
 current_cleanup :-
     findall(_, db_sync(database:gc), _),
-    delete_file('/tmp/cache').
+    setting(prodis:cache, CacheFile),
+    delete_file(CacheFile).
 
 
 :- begin_tests(database, [setup(current_setup),
