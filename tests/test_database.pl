@@ -8,7 +8,7 @@ current_setup :-
     database:connect(none).
 
 current_cleanup :-
-    findall(_, db_sync(database:gc), _),
+    autosave:save,
     setting(prodis:cache, CacheFile),
     delete_file(CacheFile).
 
