@@ -24,12 +24,13 @@ debug: prodis.pl
 	$(PROLOG) -f $< -g gxref.
 
 
-.PRONY: test
 test:
 	$(TEST) tests/*.pl
 
 
-.PRONY: clean
 clean:
 	$(RM) prodis
 	find . -name "*~" -delete
+
+
+.PHONY: clean test
