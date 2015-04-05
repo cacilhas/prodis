@@ -8,11 +8,11 @@ redis_process_command(Command, Parameters, Response) :-
 
 
 %% QUIT ------------------------------------------------------------------------
-process("QUIT", [], `+CLOSED\r\n`) :- !.
+process("QUIT", [], "+CLOSED\r\n") :- !.
 
 
 %% APPEND ----------------------------------------------------------------------
-process("APPEND", [Key, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("APPEND", [Key, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Key, Value),
     (member(type-hash, Value); member(type-list, Value)), !.
 
@@ -32,19 +32,19 @@ process("APPEND", [Key, Value], R) :-
 
 
 %% AUTH ------------------------------------------------------------------------
-process("AUTH", [Auth], `+OK\r\n`) :-
+process("AUTH", [Auth], "+OK\r\n") :-
     setting(prodis:password, ValidPasswords),
     member(Auth, ValidPasswords), !.
 
-process("AUTH", [_], `-ERR invalid password\r\n`) :- !.
+process("AUTH", [_], "-ERR invalid password\r\n") :- !.
 
 
 %% BGREWRITEAOF ----------------------------------------------------------------
-process("BGREWRITEAOF", _, `-ERR not implemented\r\n`) :- !.
+process("BGREWRITEAOF", _, "-ERR not implemented\r\n") :- !.
 
 
 %% BGSAVE ----------------------------------------------------------------------
-process("BGSAVE", [], `+Background saving started\r\n`) :- !,
+process("BGSAVE", [], "+Background saving started\r\n") :- !,
     thread_create(autosave:save, _, [detached(true)]).
 
 
@@ -56,7 +56,7 @@ process("BITCOUNT", [Key], R) :-
     count_bits(Value1, Bits), !,
     term_output(Bits, R).
 
-process("BITCOUNT", [_], `:0\r\n`) :- !.
+process("BITCOUNT", [_], ":0\r\n") :- !.
 
 
 %% BITOP -----------------------------------------------------------------------
@@ -65,11 +65,11 @@ process("BITOP", [Op, Dest | Params], R) :-
     atom_string(Operator, Aux),
     bitop(Operator, Dest, Params, R), !.
 
-process("BITOP", _, `-ERR wrong parameters to BITOP\r\n`).
+process("BITOP", _, "-ERR wrong parameters to BITOP\r\n").
 
 
 %% BITPOS ----------------------------------------------------------------------
-process("BITPOS", _, `-ERR not implemented\r\n`) :- !.
+process("BITPOS", _, "-ERR not implemented\r\n") :- !.
 
 
 %% BLPOP -----------------------------------------------------------------------
@@ -93,15 +93,15 @@ process("CLIENT", [Op | Params], R) :-
     atom_string(Operator, Aux),
     client(Operator, Params, R), !.
 
-process("CLIENT", _, `-ERR wrong parameters to CLIENT\r\n`).
+process("CLIENT", _, "-ERR wrong parameters to CLIENT\r\n").
 
 
 %% CLUSTER ---------------------------------------------------------------------
-process("CLUSTER", _, `-ERR not implemented\r\n`) :- !.
+process("CLUSTER", _, "-ERR not implemented\r\n") :- !.
 
 
 %% COMMAND ---------------------------------------------------------------------
-process("COMMAND", [], `-ERR not implemented\r\n`) :- !.
+process("COMMAND", [], "-ERR not implemented\r\n") :- !.
 
 
 %% COMMAND COUNT ---------------------------------------------------------------
@@ -110,7 +110,7 @@ process("COMMAND", [Op | Params], R) :-
     atom_string(Operator, Aux),
     command(Operator, Params, R), !.
 
-process("COMMAND", _, `-ERR wrong parameters to COMMAND\r\n`).
+process("COMMAND", _, "-ERR wrong parameters to COMMAND\r\n").
 
 
 %% CONFIG ----------------------------------------------------------------------
@@ -118,7 +118,7 @@ process("CONFIG", [Op | Params], R) :-
     string_upper(Op, Operator),
     config(Operator, Params, R), !.
 
-process("CONFIG", _, `-ERR wrong parameters to CONFIG\r\n`).
+process("CONFIG", _, "-ERR wrong parameters to CONFIG\r\n").
 
 
 %% DBSIZE ----------------------------------------------------------------------
@@ -129,7 +129,7 @@ process("DBSIZE", [], R) :-
 
 
 %% DEBUG OBJECT ----------------------------------------------------------------
-process("DEBUG", _, `-ERR not implemented\r\n`) :- !.
+process("DEBUG", _, "-ERR not implemented\r\n") :- !.
 
 
 %% DECR ------------------------------------------------------------------------
@@ -144,7 +144,7 @@ process("DECRBY", [Key, Dec], R) :-
     regset(Key, V1),
     term_output(V1, R).
 
-process("DECRBY", [Key, _], `-ERR value is not an integer or out of range\r\n`) :-
+process("DECRBY", [Key, _], "-ERR value is not an integer or out of range\r\n") :-
     regget(Key, _), !.
 
 process("DECRBY", [Key, Dec], R) :- !,
@@ -154,15 +154,15 @@ process("DECRBY", [Key, Dec], R) :- !,
 
 
 %% DEL -------------------------------------------------------------------------
-process("DEL", [Key], `:1\r\n`) :-
+process("DEL", [Key], ":1\r\n") :-
     regexists(Key), !,
     regdel(Key).
 
-process("DEL", [_], `:0\r\n`) :- !.
+process("DEL", [_], ":0\r\n") :- !.
 
 
 %% DISCARD ---------------------------------------------------------------------
-process("DISCARD", _, `-ERR not implemented\r\n`) :- !.
+process("DISCARD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% DUMP ------------------------------------------------------------------------
@@ -170,7 +170,7 @@ process("DUMP", [Key], R) :-
     regget(Key, [_, key-Key, value-Value]), !,
     term_output(Value, R).
 
-process("DUMP", [_], `$-1\r\n`) :- !.
+process("DUMP", [_], "$-1\r\n") :- !.
 
 
 %% ECHO ------------------------------------------------------------------------
@@ -179,38 +179,38 @@ process("ECHO", [String], R) :- !,
 
 
 %% EVAL ------------------------------------------------------------------------
-process("EVAL", _, `-ERR not implemented\r\n`) :- !.
+process("EVAL", _, "-ERR not implemented\r\n") :- !.
 
 
 %% EVALSHA ---------------------------------------------------------------------
-process("EVALSHA", _, `-ERR not implemented\r\n`) :- !.
+process("EVALSHA", _, "-ERR not implemented\r\n") :- !.
 
 
 %% EXEC ------------------------------------------------------------------------
-process("EXEC", _, `-ERR not implemented\r\n`) :- !.
+process("EXEC", _, "-ERR not implemented\r\n") :- !.
 
 
 %% EXISTS ----------------------------------------------------------------------
-process("EXISTS", [Key], `:1\r\n`) :-
+process("EXISTS", [Key], ":1\r\n") :-
     regexists(Key), !.
 
-process("EXISTS", [_], `:0\r\n`) :- !.
+process("EXISTS", [_], ":0\r\n") :- !.
 
 %% EXPIRE ----------------------------------------------------------------------
-process("EXPIRE", _, `-ERR not implemented\r\n`) :- !.
+process("EXPIRE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% EXPIREAT --------------------------------------------------------------------
-process("EXPIREAT", _, `-ERR not implemented\r\n`) :- !.
+process("EXPIREAT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% FLUSHALL --------------------------------------------------------------------
-process("FLUSHALL", [], `+OK\r\n`) :-
+process("FLUSHALL", [], "+OK\r\n") :-
     regdel(_).
 
 
 %% FLUSHDB ---------------------------------------------------------------------
-process("FLUSHDB", [], `+OK\r\n`) :-
+process("FLUSHDB", [], "+OK\r\n") :-
     regdel(_).
 
 
@@ -221,16 +221,16 @@ process("GET", [Key], R) :-
     member(Type, [string, number]), !,
     term_output(Value, R).
 
-process("GET", [Key], `$-1\r\n`) :-
+process("GET", [Key], "$-1\r\n") :-
     \+ regexists(Key), !.
 
 
 %% GETBIT ----------------------------------------------------------------------
-process("GETBIT", _, `-ERR not implemented\r\n`) :- !.
+process("GETBIT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% GETRANGE --------------------------------------------------------------------
-process("GETRANGE", _, `-ERR not implemented\r\n`) :- !.
+process("GETRANGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% GETSET ----------------------------------------------------------------------
@@ -245,30 +245,30 @@ process("GETSET", [Key, Value], R) :-
 
 %% HDEL ------------------------------------------------------------------------
 
-process("HDEL", [Key, Field], `:1\r\n`) :-
+process("HDEL", [Key, Field], ":1\r\n") :-
     regexists(Key, Field), !,
     regdel(Key, Field).
 
-process("HDEL", [Key, _], `:0\r\n`) :-
+process("HDEL", [Key, _], ":0\r\n") :-
     regget(Key, [type-hash |_]), !.
 
-process("HDEL", [Key, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("HDEL", [Key, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Key, Value), Value \= null, !.
 
-process("HDEL", [_, _], `:0\r\n`) :- !.
+process("HDEL", [_, _], ":0\r\n") :- !.
 
 
 %% HEXISTS ---------------------------------------------------------------------
-process("HEXISTS", [Key, Field], `:1\r\n`) :-
+process("HEXISTS", [Key, Field], ":1\r\n") :-
     regexists(Key, Field), !.
 
-process("HEXISTS", [Key, _], `:0\r\n`) :-
+process("HEXISTS", [Key, _], ":0\r\n") :-
     regget(Key, [type-hash |_]), !.
 
-process("HEXISTS", [Key, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("HEXISTS", [Key, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Key, Value), Value \= null, !.
 
-process("HEXISTS", [_, _], `:0\r\n`) :- !.
+process("HEXISTS", [_, _], ":0\r\n") :- !.
 
 
 %% HGET ------------------------------------------------------------------------
@@ -276,10 +276,10 @@ process("HGET", [Key, Field], R) :-
     regget(Key, Field, [_, key-Key, field-Field, value-Value]), !,
     term_output(Value, R).
 
-process("HGET", [Key, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("HGET", [Key, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Key, Value), Value \= null, !.
 
-process("HGET", [_, _], `$-1\r\n`) :- !.
+process("HGET", [_, _], "$-1\r\n") :- !.
 
 
 %% HGETALL ---------------------------------------------------------------------
@@ -289,10 +289,10 @@ process("HGETALL", [Key], R) :-
     flatten(List, List1),
     term_output(List1, R).
 
-process("HGETALL", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("HGETALL", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Key, Value), Value \= null, !.
 
-process("HGETALL", [_], `*0\r\n`) :- !.
+process("HGETALL", [_], "*0\r\n") :- !.
 
 
 %% HINCRBY ---------------------------------------------------------------------
@@ -303,7 +303,7 @@ process("HINCRBY", [Key, Field, Increment], R) :-
     term_output(Value1, R).
 
 %% HINCRBYFLOAT ----------------------------------------------------------------
-process("HINCRBYFLOAT", _, `-ERR not implemented\r\n`) :- !.
+process("HINCRBYFLOAT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HKEYS -----------------------------------------------------------------------
@@ -320,11 +320,11 @@ process("HLEN", [Key], R) :-
 
 
 %% HMGET -----------------------------------------------------------------------
-process("HMGET", _, `-ERR not implemented\r\n`) :- !.
+process("HMGET", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HMSET -----------------------------------------------------------------------
-process("HMSET", _, `-ERR not implemented\r\n`) :- !.
+process("HMSET", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HSET ------------------------------------------------------------------------
@@ -335,22 +335,22 @@ process("HSET", [Key, Field, Value], R) :-
     length(Fields, Length),
     term_output(Length, R).
 
-process("HSET", [Key, _, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("HSET", [Key, _, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
-process("HSET", [_, _, _], `:0\r\n`) :- !.
+process("HSET", [_, _, _], ":0\r\n") :- !.
 
 
 %% HSETNX ----------------------------------------------------------------------
-process("HSETNX", _, `-ERR not implemented\r\n`) :- !.
+process("HSETNX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HSTRLEN ---------------------------------------------------------------------
-process("HSTRLEN", _, `-ERR not implemented\r\n`) :- !.
+process("HSTRLEN", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HVALS -----------------------------------------------------------------------
-process("HVALS", _, `-ERR not implemented\r\n`) :- !.
+process("HVALS", _, "-ERR not implemented\r\n") :- !.
 
 
 %% INCR ------------------------------------------------------------------------
@@ -367,11 +367,11 @@ process("INCRBY", [Key, Increment], R) :-
 
 
 %% INCRBYFLOAT -----------------------------------------------------------------
-process("INCRBYFLOAT", _, `-ERR not implemented\r\n`) :- !.
+process("INCRBYFLOAT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% INFO ------------------------------------------------------------------------
-process("INFO", _, `-ERR not implemented\r\n`) :- !.
+process("INFO", _, "-ERR not implemented\r\n") :- !.
 
 
 %% KEYS ------------------------------------------------------------------------
@@ -381,7 +381,7 @@ process("KEYS", [Pattern], R) :-
 
 
 %% LASTSAVE --------------------------------------------------------------------
-process("LASTSAVE", _, `-ERR not implemented\r\n`) :- !.
+process("LASTSAVE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% LINDEX ----------------------------------------------------------------------
@@ -390,14 +390,14 @@ process("LINDEX", [Key, Index], R) :-
     (nth0(Index, List, Value); Value = null),
     term_output(Value, R).
 
-process("LINDEX", [Key, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("LINDEX", [Key, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
-process("LINDEX", [_, _], `$-1\r\n`) :- !.
+process("LINDEX", [_, _], "$-1\r\n") :- !.
 
 
 %% LINSERT ---------------------------------------------------------------------
-process("LINSERT", _, `-ERR not implemented\r\n`) :- !.
+process("LINSERT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% LLEN ------------------------------------------------------------------------
@@ -406,10 +406,10 @@ process("LLEN", [Key], R) :-
     length(List, Length),
     term_output(Length, R).
 
-process("LLEN", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("LLEN", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
-process("LLEN", [_], `:0\r\n`) :- !.
+process("LLEN", [_], ":0\r\n") :- !.
 
 
 %% LPOP ------------------------------------------------------------------------
@@ -423,10 +423,10 @@ process("LPOP", [Key], R) :-
     regset(Key, List),
     term_output(Left, R).
 
-process("LPOP", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("LPOP", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
-process("LPOP", [_], `$-1\r\n`) :- !.
+process("LPOP", [_], "$-1\r\n") :- !.
 
 
 
@@ -438,7 +438,7 @@ process("LPUSH", [Key|Values], R) :-
     length(List1, Length),
     term_output(Length, R).
 
-process("LPUSH", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("LPUSH", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
 process("LPUSH", [Key|Values], R) :-
@@ -453,130 +453,130 @@ process("LPUSHX", [Key, Value], R) :-
     regexists(Key), !,
     process('LPUSH', [Key, Value], R).
 
-process("LPUSHX", [Key, _], `:0\r\n`) :-
+process("LPUSHX", [Key, _], ":0\r\n") :-
     \+ regexists(Key), !.
 
 
 %% LRANGE ----------------------------------------------------------------------
-process("LRANGE", _, `-ERR not implemented\r\n`) :- !.
+process("LRANGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% LREM ------------------------------------------------------------------------
-process("LREM", _, `-ERR not implemented\r\n`) :- !.
+process("LREM", _, "-ERR not implemented\r\n") :- !.
 
 
 %% LSET
 %% -----------------------------------------------------------------------------
 %%
-process("LSET", _, `-ERR not implemented\r\n`) :- !.
+process("LSET", _, "-ERR not implemented\r\n") :- !.
 
 
 %% LTRIM -----------------------------------------------------------------------
-process("LTRIM", _, `-ERR not implemented\r\n`) :- !.
+process("LTRIM", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MGET ------------------------------------------------------------------------
-process("MGET", _, `-ERR not implemented\r\n`) :- !.
+process("MGET", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MIGRATE ---------------------------------------------------------------------
-process("MIGRATE", _, `-ERR not implemented\r\n`) :- !.
+process("MIGRATE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MONITOR ---------------------------------------------------------------------
-process("MONITOR", _, `-ERR not implemented\r\n`) :- !.
+process("MONITOR", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MOVE ------------------------------------------------------------------------
-process("MOVE", _, `-ERR not implemented\r\n`) :- !.
+process("MOVE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MSET ------------------------------------------------------------------------
-process("MSET", _, `-ERR not implemented\r\n`) :- !.
+process("MSET", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MSETNX ----------------------------------------------------------------------
-process("MSETNX", _, `-ERR not implemented\r\n`) :- !.
+process("MSETNX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% MULTI -----------------------------------------------------------------------
-process("MULTI", _, `-ERR not implemented\r\n`) :- !.
+process("MULTI", _, "-ERR not implemented\r\n") :- !.
 
 
 %% OBJECT ----------------------------------------------------------------------
-process("OBJECT", _, `-ERR not implemented\r\n`) :- !.
+process("OBJECT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PERSIST ---------------------------------------------------------------------
-process("PERSIST", _, `-ERR not implemented\r\n`) :- !.
+process("PERSIST", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PEXPIRE ---------------------------------------------------------------------
-process("PEXPIRE", _, `-ERR not implemented\r\n`) :- !.
+process("PEXPIRE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PEXPIREAT -------------------------------------------------------------------
-process("PEXPIREAT", _, `-ERR not implemented\r\n`) :- !.
+process("PEXPIREAT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PFADD -----------------------------------------------------------------------
-process("PFADD", _, `-ERR not implemented\r\n`) :- !.
+process("PFADD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PFCOUNT ---------------------------------------------------------------------
-process("PFCOUNT", _, `-ERR not implemented\r\n`) :- !.
+process("PFCOUNT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PFMERGE ---------------------------------------------------------------------
-process("PFMERGE", _, `-ERR not implemented\r\n`) :- !.
+process("PFMERGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PING ------------------------------------------------------------------------
-process("PING", [], `+PONG\r\n`) :- !.
+process("PING", [], "+PONG\r\n") :- !.
 
 
 %% PSETEX ----------------------------------------------------------------------
-process("PSETEX", _, `-ERR not implemented\r\n`) :- !.
+process("PSETEX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PSUBSCRIBE ------------------------------------------------------------------
-process("PSUBSCRIBE", _, `-ERR not implemented\r\n`) :- !.
+process("PSUBSCRIBE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PUBSUB ----------------------------------------------------------------------
-process("PUBSUB", _, `-ERR not implemented\r\n`) :- !.
+process("PUBSUB", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PTTL ------------------------------------------------------------------------
-process("PTTL", _, `-ERR not implemented\r\n`) :- !.
+process("PTTL", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PUBLISH ---------------------------------------------------------------------
-process("PUBLISH", _, `-ERR not implemented\r\n`) :- !.
+process("PUBLISH", _, "-ERR not implemented\r\n") :- !.
 
 
 %% PUNSUBSCRIBE ----------------------------------------------------------------
-process("PUNSUBSCRIBE", _, `-ERR not implemented\r\n`) :- !.
+process("PUNSUBSCRIBE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% RANDOMKEY -------------------------------------------------------------------
-process("RANDOMKEY", _, `-ERR not implemented\r\n`) :- !.
+process("RANDOMKEY", _, "-ERR not implemented\r\n") :- !.
 
 
 %% RENAME ----------------------------------------------------------------------
-process("RENAME", _, `-ERR not implemented\r\n`) :- !.
+process("RENAME", _, "-ERR not implemented\r\n") :- !.
 
 
 %% RENAMENX --------------------------------------------------------------------
-process("RENAMENX", _, `-ERR not implemented\r\n`) :- !.
+process("RENAMENX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% RESTORE ---------------------------------------------------------------------
-process("RESTORE", _, `-ERR not implemented\r\n`) :- !.
+process("RESTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ROLE ------------------------------------------------------------------------
-process("ROLE", _, `-ERR not implemented\r\n`) :- !.
+process("ROLE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% RPOP ------------------------------------------------------------------------
@@ -591,14 +591,14 @@ process("RPOP", [Key], R) :-
     regset(Key, List1),
     term_output(Right, R).
 
-process("RPOP", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("RPOP", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
-process("RPOP", [_], `$-1\r\n`) :- !.
+process("RPOP", [_], "$-1\r\n") :- !.
 
 
 %% RPOPLPUSH -------------------------------------------------------------------
-process("RPOPLPUSH", [_, Destination], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("RPOPLPUSH", [_, Destination], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regget(Destination, [type-Type |_]),
     Type \= list, !.
 
@@ -615,10 +615,10 @@ process("RPOPLPUSH", [Source, Destination], R) :-
     term_output(Right, R),
     process("LPUSH", [Destination, Right], _).
 
-process("RPOPLPUSH", [Source, _], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("RPOPLPUSH", [Source, _], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Source), !.
 
-process("RPOPLPUSH", [_, _], `$-1\r\n`) :- !.
+process("RPOPLPUSH", [_, _], "$-1\r\n") :- !.
 
 
 %% RPUSH -----------------------------------------------------------------------
@@ -629,7 +629,7 @@ process("RPUSH", [Key|Values], R) :-
     length(List1, Length),
     term_output(Length, R).
 
-process("RPUSH", [Key], `-WRONGTYPE Operation against a key holding the wrong kind of value\r\n`) :-
+process("RPUSH", [Key], "-WRONGTYPE Operation against a key holding the wrong kind of value\r\n") :-
     regexists(Key), !.
 
 process("RPUSH", [Key|Values], R) :- !,
@@ -643,76 +643,76 @@ process("RPUSHX", [Key, Value], R) :-
     regexists(Key), !,
     process('RPUSH', [Key, Value], R).
 
-process("RPUSHX", [Key, _], `:0\r\n`) :-
+process("RPUSHX", [Key, _], ":0\r\n") :-
     \+ regexists(Key), !.
 
 
 %% SADD ------------------------------------------------------------------------
-process("SADD", _, `-ERR not implemented\r\n`) :- !.
+process("SADD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SAVE ------------------------------------------------------------------------
-process("SAVE", [], `+OK\r\n`) :-
+process("SAVE", [], "+OK\r\n") :-
     autosave:save, !.
 
-process("SAVE", [], `-ERR\r\n`) :- !.
+process("SAVE", [], "-ERR\r\n") :- !.
 
 
 %% SCARD -----------------------------------------------------------------------
-process("SCARD", _, `-ERR not implemented\r\n`) :- !.
+process("SCARD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SCRIPT EXISTS ---------------------------------------------------------------
-process("SCRIPT", _, `-ERR not implemented\r\n`) :- !.
+process("SCRIPT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SCRIPT FLUSH ----------------------------------------------------------------
-process("SCRIPT", _, `-ERR not implemented\r\n`) :- !.
+process("SCRIPT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SCRIPT KILL -----------------------------------------------------------------
-process("SCRIPT", _, `-ERR not implemented\r\n`) :- !.
+process("SCRIPT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SCRIPT LOAD -----------------------------------------------------------------
-process("SCRIPT", _, `-ERR not implemented\r\n`) :- !.
+process("SCRIPT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SDIFF -----------------------------------------------------------------------
-process("SDIFF", _, `-ERR not implemented\r\n`) :- !.
+process("SDIFF", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SDIFFSTORE ------------------------------------------------------------------
-process("SDIFFSTORE", _, `-ERR not implemented\r\n`) :- !.
+process("SDIFFSTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SELECT ----------------------------------------------------------------------
-process("SELECT", _, `-ERR not implemented\r\n`) :- !.
+process("SELECT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SET -------------------------------------------------------------------------
-process("SET", [Key, Value], `:1\r\n`) :- !,
+process("SET", [Key, Value], ":1\r\n") :- !,
     regset(Key, Value).
 
 
 %% SETBIT ----------------------------------------------------------------------
-process("SETBIT", _, `-ERR not implemented\r\n`) :- !.
+process("SETBIT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SETEX -----------------------------------------------------------------------
-process("SETEX", _, `-ERR not implemented\r\n`) :- !.
+process("SETEX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SETNX -----------------------------------------------------------------------
-process("SETNX", _, `-ERR not implemented\r\n`) :- !.
+process("SETNX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SETRANGE --------------------------------------------------------------------
-process("SETRANGE", _, `-ERR not implemented\r\n`) :- !.
+process("SETRANGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SHUTDOWN --------------------------------------------------------------------
-process("SHUTDOWN", [How], `+OK\r\n`) :-
+process("SHUTDOWN", [How], "+OK\r\n") :-
     string_upper(How, How1),
     member(How1, ["SAVE", "NOSAVE"]), !,
     (How1 = "SAVE" -> autosave:save; true),
@@ -720,47 +720,47 @@ process("SHUTDOWN", [How], `+OK\r\n`) :-
 
 
 %% SINTER ----------------------------------------------------------------------
-process("SINTER", _, `-ERR not implemented\r\n`) :- !.
+process("SINTER", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SINTERSTORE -----------------------------------------------------------------
-process("SINTERSTORE", _, `-ERR not implemented\r\n`) :- !.
+process("SINTERSTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SISMEMBER -------------------------------------------------------------------
-process("SISMEMBER", _, `-ERR not implemented\r\n`) :- !.
+process("SISMEMBER", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SLAVEOF ---------------------------------------------------------------------
-process("SLAVEOF", _, `-ERR not implemented\r\n`) :- !.
+process("SLAVEOF", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SLOWLOG ---------------------------------------------------------------------
-process("SLOWLOG", _, `-ERR not implemented\r\n`) :- !.
+process("SLOWLOG", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SMEMBERS --------------------------------------------------------------------
-process("SMEMBERS", _, `-ERR not implemented\r\n`) :- !.
+process("SMEMBERS", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SMOVE -----------------------------------------------------------------------
-process("SMOVE", _, `-ERR not implemented\r\n`) :- !.
+process("SMOVE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SORT ------------------------------------------------------------------------
-process("SORT", _, `-ERR not implemented\r\n`) :- !.
+process("SORT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SPOP ------------------------------------------------------------------------
-process("SPOP", _, `-ERR not implemented\r\n`) :- !.
+process("SPOP", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SRANDMEMBER -----------------------------------------------------------------
-process("SRANDMEMBER", _, `-ERR not implemented\r\n`) :- !.
+process("SRANDMEMBER", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SREM ------------------------------------------------------------------------
-process("SREM", _, `-ERR not implemented\r\n`) :- !.
+process("SREM", _, "-ERR not implemented\r\n") :- !.
 
 
 %% STRLEN ----------------------------------------------------------------------
@@ -771,19 +771,19 @@ process("STRLEN", [Key], R) :-
 
 
 %% SUBSCRIBE -------------------------------------------------------------------
-process("SUBSCRIBE", _, `-ERR not implemented\r\n`) :- !.
+process("SUBSCRIBE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SUNION ----------------------------------------------------------------------
-process("SUNION", _, `-ERR not implemented\r\n`) :- !.
+process("SUNION", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SUNIONSTORE -----------------------------------------------------------------
-process("SUNIONSTORE", _, `-ERR not implemented\r\n`) :- !.
+process("SUNIONSTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SYNC ------------------------------------------------------------------------
-process("SYNC", _, `-ERR not implemented\r\n`) :- !.
+process("SYNC", _, "-ERR not implemented\r\n") :- !.
 
 
 %% TIME ------------------------------------------------------------------------
@@ -793,7 +793,7 @@ process("TIME", [], R) :- !,
 
 
 %% TTL -------------------------------------------------------------------------
-process("TTL", _, `-ERR not implemented\r\n`) :- !.
+process("TTL", _, "-ERR not implemented\r\n") :- !.
 
 
 %% TYPE ------------------------------------------------------------------------
@@ -801,115 +801,115 @@ process("TYPE", [Key], R) :-
     regget(Key, [type-Type |_]), !,
     term_output(Type, R).
 
-process("TYPE", [_], `+none\r\n`) :- !.
+process("TYPE", [_], "+none\r\n") :- !.
 
 
 %% UNSUBSCRIBE -----------------------------------------------------------------
-process("UNSUBSCRIBE", _, `-ERR not implemented\r\n`) :- !.
+process("UNSUBSCRIBE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% UNWATCH ---------------------------------------------------------------------
-process("UNWATCH", _, `-ERR not implemented\r\n`) :- !.
+process("UNWATCH", _, "-ERR not implemented\r\n") :- !.
 
 
 %% WATCH -----------------------------------------------------------------------
-process("WATCH", _, `-ERR not implemented\r\n`) :- !.
+process("WATCH", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZADD ------------------------------------------------------------------------
-process("ZADD", _, `-ERR not implemented\r\n`) :- !.
+process("ZADD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZCARD -----------------------------------------------------------------------
-process("ZCARD", _, `-ERR not implemented\r\n`) :- !.
+process("ZCARD", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZCOUNT ----------------------------------------------------------------------
-process("ZCOUNT", _, `-ERR not implemented\r\n`) :- !.
+process("ZCOUNT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZINCRBY ---------------------------------------------------------------------
-process("ZINCRBY", _, `-ERR not implemented\r\n`) :- !.
+process("ZINCRBY", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZINTERSTORE -----------------------------------------------------------------
-process("ZINTERSTORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZINTERSTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZLEXCOUNT -------------------------------------------------------------------
-process("ZLEXCOUNT", _, `-ERR not implemented\r\n`) :- !.
+process("ZLEXCOUNT", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZRANGE ----------------------------------------------------------------------
-process("ZRANGE", _, `-ERR not implemented\r\n`) :- !.
+process("ZRANGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZRANGEBYLEX -----------------------------------------------------------------
-process("ZRANGEBYLEX", _, `-ERR not implemented\r\n`) :- !.
+process("ZRANGEBYLEX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREVRANGEBYLEX --------------------------------------------------------------
-process("ZREVRANGEBYLEX", _, `-ERR not implemented\r\n`) :- !.
+process("ZREVRANGEBYLEX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZRANGEBYSCORE ---------------------------------------------------------------
-process("ZRANGEBYSCORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZRANGEBYSCORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZRANK -----------------------------------------------------------------------
-process("ZRANK", _, `-ERR not implemented\r\n`) :- !.
+process("ZRANK", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREM ------------------------------------------------------------------------
-process("ZREM", _, `-ERR not implemented\r\n`) :- !.
+process("ZREM", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREMRANGEBYLEX --------------------------------------------------------------
-process("ZREMRANGEBYLEX", _, `-ERR not implemented\r\n`) :- !.
+process("ZREMRANGEBYLEX", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREMRANGEBYRANK -------------------------------------------------------------
-process("ZREMRANGEBYRANK", _, `-ERR not implemented\r\n`) :- !.
+process("ZREMRANGEBYRANK", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREMRANGEBYSCORE ------------------------------------------------------------
-process("ZREMRANGEBYSCORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZREMRANGEBYSCORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREVRANGE -------------------------------------------------------------------
-process("ZREVRANGE", _, `-ERR not implemented\r\n`) :- !.
+process("ZREVRANGE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREVRANGEBYSCORE ------------------------------------------------------------
-process("ZREVRANGEBYSCORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZREVRANGEBYSCORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZREVRANK --------------------------------------------------------------------
-process("ZREVRANK", _, `-ERR not implemented\r\n`) :- !.
+process("ZREVRANK", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZSCORE ----------------------------------------------------------------------
-process("ZSCORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZSCORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZUNIONSTORE -----------------------------------------------------------------
-process("ZUNIONSTORE", _, `-ERR not implemented\r\n`) :- !.
+process("ZUNIONSTORE", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SCAN ------------------------------------------------------------------------
-process("SCAN", _, `-ERR not implemented\r\n`) :- !.
+process("SCAN", _, "-ERR not implemented\r\n") :- !.
 
 
 %% SSCAN -----------------------------------------------------------------------
-process("SSCAN", _, `-ERR not implemented\r\n`) :- !.
+process("SSCAN", _, "-ERR not implemented\r\n") :- !.
 
 
 %% HSCAN -----------------------------------------------------------------------
-process("HSCAN", _, `-ERR not implemented\r\n`) :- !.
+process("HSCAN", _, "-ERR not implemented\r\n") :- !.
 
 
 %% ZSCAN -----------------------------------------------------------------------
-process("ZSCAN", _, `-ERR not implemented\r\n`) :- !.
+process("ZSCAN", _, "-ERR not implemented\r\n") :- !.
 
 
 %% Unknown command -------------------------------------------------------------
@@ -943,22 +943,22 @@ do_bitop("XOR", [X|Xs], Acc, Value) :-
     do_bitop("XOR", Xs, Acc1, Value).
 
 
-client("GETNAME", _, `-ERR not implemented\r\n`).
+client("GETNAME", _, "-ERR not implemented\r\n").
 
-client("KILL", _, `-ERR not implemented\r\n`).
+client("KILL", _, "-ERR not implemented\r\n").
 
-client("LIST", _, `-ERR not implemented\r\n`).
+client("LIST", _, "-ERR not implemented\r\n").
 
-client("PAUSE", _, `-ERR not implemented\r\n`).
+client("PAUSE", _, "-ERR not implemented\r\n").
 
-client("SETNAME", _, `-ERR not implemented\r\n`).
+client("SETNAME", _, "-ERR not implemented\r\n").
 
 
-command("COUNT", _, `-ERR not implemented\r\n`).
+command("COUNT", _, "-ERR not implemented\r\n").
 
-command("GETKEYS", _, `-ERR not implemented\r\n`).
+command("GETKEYS", _, "-ERR not implemented\r\n").
 
-command("INFO", _, `-ERR not implemented\r\n`).
+command("INFO", _, "-ERR not implemented\r\n").
 
 
 config("GET", [Key], R) :-
@@ -966,7 +966,7 @@ config("GET", [Key], R) :-
     setting(prodis:AKey, Value),
     term_output([AKey, Value], R), !.
 
-config("REWRITE", [], `+OK\r\n`) :-
+config("REWRITE", [], "+OK\r\n") :-
     setting(prodis:conffile, Settings),
     load_settings(Settings),
     setting(prodis:logfile, LogFile),
@@ -977,9 +977,9 @@ config("SET", [Key, Value], R) :-
     set_setting(prodis:AKey, Value), !,
     term_output([AKey, Value], R).
 
-config(_, _, `-ERR Unsupported CONFIG parameter\r\n`).
+config(_, _, "-ERR Unsupported CONFIG parameter\r\n").
 
-config('RESETSTAT', _, `-ERR not implemented\r\n`).
+config('RESETSTAT', _, "-ERR not implemented\r\n").
 
 
 p_append(Value, Current, R) :-

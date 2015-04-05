@@ -49,15 +49,14 @@ continue_processing(State, Command) :-
 
 
 %% Close connection
-respond([peer-Peer, stream-Stream], `+CLOSED\r\n`) :- !,
+respond([peer-Peer, stream-Stream], "+CLOSED\r\n") :- !,
     log(debug, '(~w) closing connection', [Peer]),
     write(Stream, "+CLOSE\r\n").
 
 %% Respond and wait for commands
 respond([peer-Peer, stream-Stream], Response) :- !,
-    string_codes(R1, Response),
-    log(debug, '(~w) responding: ~q', [Peer, R1]),
-    write(Stream, R1),
+    log(debug, '(~w) responding: ~q', [Peer, Response]),
+    write(Stream, Response),
     flush_output(Stream),
     look_to([peer-Peer, stream-Stream]).
 
