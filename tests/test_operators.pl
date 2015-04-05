@@ -1,6 +1,6 @@
 ﻿% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
-:- module(test_operatiors, []).
+:- module(test_operators, []).
 :- ['../src/operators'].
 
 :- begin_tests(operators).
