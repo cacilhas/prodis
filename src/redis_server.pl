@@ -24,7 +24,7 @@ process("APPEND", [Key, Value], R) :-
     term_output(Length, R).
 
 process("APPEND", [Key, Value], R) :-
-    \+ regget(Key, _), !,
+    regget(Key, [type-none, key-_, value-null]), !,
     term_string(Value, Value1),
     regset(Key, Value1),
     string_length(Value1, Length),
@@ -914,7 +914,7 @@ process("ZSCAN", _, "-ERR not implemented\r\n") :- !.
 
 %% Unknown command -------------------------------------------------------------
 process(Command, _, R) :-
-    format(codes(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
+    format(string(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
 
 
 %% Auxiliar --------------------------------------------------------------------
