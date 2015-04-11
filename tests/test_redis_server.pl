@@ -42,7 +42,59 @@ test('BITCOUNT', [setup((regset("foo", 10),
     redis_process_command("BITCOUNT", ["baaz"], ":8\r\n"),
     redis_process_command("BITCOUNT", ["zero"], ":0\r\n").
 
-%%  TODO: BITOP
+test('DBSIZE_0') :-
+    redis_process_command("DBSIZE", [], ":0\r\n").
+
+test('DBSIZE_3', [setup((regset("foo", 10),
+                          regset("bar", 4),
+                          regset("baaz", 255))),
+                   cleanup(regdel(_))]) :-
+    redis_process_command("DBSIZE", [], ":3\r\n").
+
+test('DECR_inexistent') :-
+    redis_process_command("DECR", ["foo"], "-ERR value is not an integer or out of range\r\n").
+
+test('DECR_wront_type', [setup(regset("foo", "bar")),
+                          cleanup(regdel(_))]) :-
+    redis_process_command("DECR", ["foo"], "-ERR value is not an integer or out of range\r\n").
+
+test('DECR_number_type', [setup(regset("foo", 10)),
+                           cleanup(regdel(_))]) :-
+    redis_process_command("DECR", ["foo"], ":9\r\n").
+
+test('DECR_number_type', [setup(regset("foo", "10")),
+                           cleanup(regdel(_))]) :-
+    redis_process_command("DECR", ["foo"], ":9\r\n").
+
+test('DECRBY_inexistent') :-
+    redis_process_command("DECRBY", ["foo", "2"], "-ERR value is not an integer or out of range\r\n").
+
+test('DECRBY_wront_type', [setup(regset("foo", "bar")),
+                          cleanup(regdel(_))]) :-
+    redis_process_command("DECRBY", ["foo", "2"], "-ERR value is not an integer or out of range\r\n").
+
+test('DECRBY_number_type', [setup(regset("foo", 10)),
+                           cleanup(regdel(_))]) :-
+    redis_process_command("DECRBY", ["foo", "2"], ":8\r\n").
+
+test('DECRBY_number_type', [setup(regset("foo", "10")),
+                           cleanup(regdel(_))]) :-
+    redis_process_command("DECRBY", ["foo", "2"], ":8\r\n").
+
+test('DEL_nothing') :-
+    redis_process_command("DEL", ["foo"], ":0\r\n").
+
+test('DEL', [setup((regset("foo", 1),
+                             regset("bar", 2))),
+                      cleanup(regdel(_))]) :-
+    redis_process_command("DEL", ["foo"], ":1\r\n"),
+    regget("bar", [type-number, key-"bar", value-2]),
+    regget("foo", [type-none, key-"foo", value-null]).
+
+test('ECHO') :-
+    redis_process_command("ECHO", ["foobar baaz"], "$11\r\nfoobar baaz\r\n").
+
+%%  TODO: EXISTS
 
 :- end_tests(redis_server).
 
