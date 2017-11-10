@@ -24,7 +24,7 @@ process("APPEND", [Key, Value], R) :-
     term_output(Length, R).
 
 process("APPEND", [Key, Value], R) :-
-    \+ regget(Key, _), !,
+    regget(Key, [type-none, key-_, value-null]), !,
     term_string(Value, Value1),
     regset(Key, Value1),
     string_length(Value1, Length),
@@ -60,12 +60,7 @@ process("BITCOUNT", [_], ":0\r\n") :- !.
 
 
 %% BITOP -----------------------------------------------------------------------
-process("BITOP", [Op, Dest | Params], R) :-
-    string_upper(Op, Aux),
-    atom_string(Operator, Aux),
-    bitop(Operator, Dest, Params, R), !.
-
-process("BITOP", _, "-ERR wrong parameters to BITOP\r\n").
+process("BITOP",  _, "-ERR not implemented\r\n") :- !.
 
 
 %% BITPOS ----------------------------------------------------------------------
@@ -122,7 +117,7 @@ process("CONFIG", _, "-ERR wrong parameters to CONFIG\r\n").
 
 
 %% DBSIZE ----------------------------------------------------------------------
-process("DBSIZE", [], R) :-
+process("DBSIZE", [], R) :- !,
     regkeys("*", Keys),
     length(Keys, Length),
     term_output(Length, R).
@@ -133,16 +128,34 @@ process("DEBUG", _, "-ERR not implemented\r\n") :- !.
 
 
 %% DECR ------------------------------------------------------------------------
-process("DECR", [Key], R) :-
+process("DECR", [Key], R) :- !,
     process("DECRBY", [Key, 1], R).
 
 
 %% DECRBY ----------------------------------------------------------------------
 process("DECRBY", [Key, Dec], R) :-
-    regget(Key, [type-number, key-Key, value-Value]), !,
+    regget(Key, [type-number, key-Key, value-Value]),
+    number(Dec), !,
     V1 is Value - Dec,
     regset(Key, V1),
     term_output(V1, R).
+
+process("DECRBY", [Key, Dec], R) :-
+    regget(Key, [type-string, key-Key, value-Value]),
+    number(Dec),
+    atom_codes(Atom, Value),
+    atom_to_term(Atom, Num, []),
+    number(Num), !,
+    V1 is Num - Dec,
+    regset(Key, V1),
+    term_output(V1, R).
+
+process("DECRBY", [Key, Dec], R) :-
+    (string(Dec); is_list(Dec)),
+    atom_codes(Atom, Dec),
+    atom_to_term(Atom, Num, []),
+    number(Num), !,
+    process("DECRBY", [Key, Num], R).
 
 process("DECRBY", [Key, _], "-ERR value is not an integer or out of range\r\n") :-
     regget(Key, _), !.
@@ -914,35 +927,10 @@ process("ZSCAN", _, "-ERR not implemented\r\n") :- !.
 
 %% Unknown command -------------------------------------------------------------
 process(Command, _, R) :-
-    format(codes(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
+    format(string(R), '-ERR unknown command or parameters: ~w\r~n', [Command]).
 
 
 %% Auxiliar --------------------------------------------------------------------
-bitop(Op, Dest, Params, R) :-
-    findall(X, (member(Key, Params), regget(Key, [type-string, key-Key, value-X])), Values),
-    do_bitop(Op, Values, [], Value),
-    regset(Dest, Value),
-    length(Value, Length),
-    term_output(Length, R).
-
-do_bitop(_, [], Value, Value).
-
-do_bitop("NOT", [Value], _, R) :-
-    apply_not(Value, R).
-
-do_bitop("AND", [X|Xs], Acc, R) :-
-    apply_and(X, Acc, Acc1),
-    do_bitop("AND", Xs, Acc1, R).
-
-do_bitop("OR", [X|Xs], Acc, R) :-
-    apply_or(X, Acc, Acc1),
-    do_bitop("OR", Xs, Acc1, R).
-
-do_bitop("XOR", [X|Xs], Acc, Value) :-
-    apply_xor(X, Acc, Acc1),
-    do_bitop("XOR", Xs, Acc1, Value).
-
-
 client("GETNAME", _, "-ERR not implemented\r\n").
 
 client("KILL", _, "-ERR not implemented\r\n").
