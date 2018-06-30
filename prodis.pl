@@ -1,9 +1,9 @@
-﻿% -*- Prolog -*-
+% -*- Prolog -*-
 % @copyright ©2015, Rodrigo Cacilhας <batalema@cacilhas.info>
 :- module(prodis, [start_prodis/0]).
 :- [library(settings), 'src/logging', 'src/autosave', 'src/listen'].
 
-:- set_prolog_flag(optimise, true).
+:- set_prolog_flag(optimise, on).
 
 :- if((current_prolog_flag(version, V), V < 70000)).
 :- format('prodis does not work on SWI 6-~n', []), halt.
