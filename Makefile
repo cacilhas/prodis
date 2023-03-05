@@ -2,9 +2,9 @@ UNAME= $(shell uname)
 
 ifeq ($(UNAME), Darwin)
 	# Mac OS X installation does not put swipl on PATH envvar
-	PROLOG= /Applications/SWI-Prolog.app/Contents/MacOS/swipl --quiet
+	PROLOG= /Applications/SWI-Prolog.app/Contents/MacOS/swipl
 else
-	PROLOG= swipl --quiet
+	PROLOG= swipl
 endif
 
 SETTINGS=settings/test.pro
